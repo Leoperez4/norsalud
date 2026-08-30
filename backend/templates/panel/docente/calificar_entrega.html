@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Calificar entrega | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Calificar entrega</h1>
+</div>
+<div class="card">
+    <ul class="detail-list" style="margin-bottom: 18px;">
+        <li><span>Estudiante</span><span>{{ entrega.estudiante.first_name }} {{ entrega.estudiante.last_name }}</span></li>
+        <li><span>Tarea</span><span>{{ entrega.entregable.titulo }}</span></li>
+        <li><span>Archivo</span><span><a href="{{ entrega.archivo.url }}" target="_blank">Ver archivo entregado</a></span></li>
+        <li><span>Comentario del estudiante</span><span>{{ entrega.comentario_estudiante|default:"Sin comentario" }}</span></li>
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-field full">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar calificación</button>
+            <a href="{% url 'panel:docente_tarea_entregas' entrega.entregable.pk %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

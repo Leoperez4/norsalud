@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Notas de {{ estudiante.first_name }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Notas · {{ estudiante.first_name }} {{ estudiante.last_name }}</h1>
+    <a href="{% url 'panel:estudiante_list' %}" class="btn btn-secondary">Volver</a>
+</div>
+<div class="card">
+    {% if filas %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Asignatura</th>
+            <th>Promedio</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for fila in filas %}
+            <tr>
+                <td>{{ fila.asignatura }}</td>
+                <td><span class="badge">{{ fila.promedio|default:"—" }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">Este estudiante todavía no está inscrito en ninguna asignatura.</div>
+    {% endif %}
+</div>
+{% endblock %}

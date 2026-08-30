@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ asignatura.nombre }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ asignatura.nombre }}</h1>
+    <div class="actions-cell">
+        <a href="{% url 'panel:asignatura_update' asignatura.pk %}" class="btn btn-secondary">Editar</a>
+        <a href="{% url 'panel:asignatura_list' %}" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
+<div class="card">
+    <ul class="detail-list">
+        <li><span>Curso</span><span>{{ asignatura.curso }}</span></li>
+        <li><span>Semestre</span><span>{{ asignatura.semestre }}</span></li>
+        <li><span>Programa</span><span>{{ asignatura.programa }}</span></li>
+        <li><span>Docente</span><span>{{ asignatura.docente|default:"Sin asignar" }}</span></li>
+        <li><span>Cupos totales</span><span>{{ asignatura.cupos }}</span></li>
+        <li><span>Cupos ocupados</span><span>{{ asignatura.cupos_ocupados }}</span></li>
+        <li><span>Cupos disponibles</span><span>{{ asignatura.cupos_disponibles }}</span></li>
+    </ul>
+</div>
+{% endblock %}

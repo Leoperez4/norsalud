@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Estudiantes de {{ asignatura.nombre }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Estudiantes · {{ asignatura.nombre }}</h1>
+    <a href="{% url 'panel:asignatura_list' %}" class="btn btn-secondary">Volver a asignaturas</a>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <p style="margin: 0 0 12px; font-weight: 600; color: var(--azul-marino-oscuro);">
+        Matricular estudiante (cupos: {{ asignatura.cupos_ocupados }} / {{ asignatura.cupos }})
+    </p>
+    {% if estudiantes_disponibles %}
+    <form method="post" style="display:flex; gap: 10px;">
+        {% csrf_token %}
+        <select name="estudiante" class="form-field" style="flex:1; padding:10px; border:1px solid var(--borde); border-radius:6px;">
+            {% for estudiante in estudiantes_disponibles %}
+                <option value="{{ estudiante.pk }}">{{ estudiante.first_name }} {{ estudiante.last_name }} ({{ estudiante.cedula }})</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">+ Agregar estudiante</button>
+    </form>
+    {% else %}
+        <p>No hay estudiantes disponibles para matricular.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    {% if inscripciones %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Estudiante</th>
+            <th>Cédula</th>
+            <th>Fecha de inscripción</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for inscripcion in inscripciones %}
+            <tr>
+                <td>{{ inscripcion.estudiante.first_name }} {{ inscripcion.estudiante.last_name }}</td>
+                <td>{{ inscripcion.estudiante.cedula }}</td>
+                <td>{{ inscripcion.fecha_registro }}</td>
+                <td>
+                    <form method="post" action="{% url 'panel:inscripcion_eliminar' inscripcion.pk %}" onsubmit="return confirm('¿Retirar a este estudiante de la asignatura?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Retirar</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">Todavía no hay estudiantes inscritos en esta asignatura.</div>
+    {% endif %}
+</div>
+{% endblock %}

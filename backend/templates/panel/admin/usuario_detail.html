@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ persona.first_name }} {{ persona.last_name }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ persona.first_name }} {{ persona.last_name }}</h1>
+    <div class="actions-cell">
+        {% if section == "docentes" %}
+            <a href="{% url 'panel:docente_update' persona.pk %}" class="btn btn-secondary">Editar</a>
+        {% else %}
+            <a href="{% url 'panel:estudiante_update' persona.pk %}" class="btn btn-secondary">Editar</a>
+        {% endif %}
+        <a href="{{ volver_url }}" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
+<div class="card">
+    <ul class="detail-list">
+        <li><span>C.C.</span><span>{{ persona.cedula }}</span></li>
+        <li><span>Correo</span><span>{{ persona.email }}</span></li>
+        <li><span>Programa</span><span>{{ persona.programa|default:"—" }}</span></li>
+        <li><span>Celular</span><span>{{ persona.celular|default:"—" }}</span></li>
+        <li><span>Dirección</span><span>{{ persona.direccion|default:"—" }}</span></li>
+    </ul>
+</div>
+{% endblock %}

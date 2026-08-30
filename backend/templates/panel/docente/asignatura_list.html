@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Mis asignaturas | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Mis asignaturas</h1>
+</div>
+
+<div class="card">
+    {% if asignaturas %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Curso</th>
+            <th>Programa</th>
+            <th>Estudiantes</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for asignatura in asignaturas %}
+            <tr>
+                <td>{{ asignatura.nombre }}</td>
+                <td>{{ asignatura.curso }} · {{ asignatura.semestre }}</td>
+                <td>{{ asignatura.programa }}</td>
+                <td><span class="badge">{{ asignatura.cupos_ocupados }}</span></td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_asistencia' asignatura.pk %}">Asistencia</a>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_tareas' asignatura.pk %}">Tareas</a>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_calificaciones' asignatura.pk %}">Calificaciones</a>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_anuncios' asignatura.pk %}">Anuncios</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">Todavía no tienes asignaturas asignadas.</div>
+    {% endif %}
+</div>
+{% endblock %}

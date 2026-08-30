@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ tarea.titulo }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ tarea.titulo }}</h1>
+    <a href="{% url 'panel:estudiante_tareas' tarea.asignatura.pk %}" class="btn btn-secondary">Volver</a>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <ul class="detail-list">
+        <li><span>Descripción</span><span>{{ tarea.descripcion }}</span></li>
+        <li><span>Fecha de cierre</span><span>{{ tarea.fecha_entrega }}</span></li>
+        {% if tarea.archivo_adjunto %}
+        <li><span>Archivo del docente</span><span><a href="{{ tarea.archivo_adjunto.url }}" target="_blank">Descargar</a></span></li>
+        {% endif %}
+    </ul>
+</div>
+
+{% if entrega and entrega.calificacion is not None %}
+<div class="card">
+    <p style="margin: 0 0 4px; font-weight: 600; color: var(--azul-marino-oscuro);">Tu entrega ya fue calificada</p>
+    <ul class="detail-list">
+        <li><span>Archivo enviado</span><span><a href="{{ entrega.archivo.url }}" target="_blank">Ver archivo</a></span></li>
+        <li><span>Tu comentario</span><span>{{ entrega.comentario_estudiante|default:"—" }}</span></li>
+        <li><span>Nota</span><span class="badge">{{ entrega.calificacion }}</span></li>
+        <li><span>Retroalimentación</span><span>{{ entrega.retroalimentacion|default:"Sin comentarios" }}</span></li>
+    </ul>
+</div>
+{% else %}
+<div class="card">
+    {% if entrega %}
+        <p class="muted">Ya enviaste esta tarea el {{ entrega.fecha_envio }}. Puedes volver a subir el archivo si necesitas corregirlo.</p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field full">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% if entrega %}Reemplazar entrega{% else %}Enviar tarea{% endif %}</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

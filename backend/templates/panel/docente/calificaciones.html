@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Calificaciones · {{ asignatura.nombre }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Calificaciones · {{ asignatura.nombre }}</h1>
+    <div class="actions-cell">
+        <a href="{% url 'panel:docente_calificaciones_pdf' asignatura.pk %}" class="btn btn-primary">Descargar PDF</a>
+        <a href="{% url 'panel:docente_asignaturas' %}" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
+
+<div class="card">
+    {% if filas %}
+    <div style="overflow-x:auto;">
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Estudiante</th>
+            {% for tarea in tareas %}<th>{{ tarea.numero }}. {{ tarea.titulo }}</th>{% endfor %}
+            <th>Promedio</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for fila in filas %}
+            <tr>
+                <td>{{ fila.estudiante.first_name }} {{ fila.estudiante.last_name }}</td>
+                {% for entrega in fila.notas %}
+                    <td>
+                        {% if entrega and entrega.calificacion is not None %}
+                            <a href="{% url 'panel:docente_entrega_calificar' entrega.pk %}">{{ entrega.calificacion }}</a>
+                        {% elif entrega %}
+                            <a href="{% url 'panel:docente_entrega_calificar' entrega.pk %}" class="btn btn-secondary btn-sm">Calificar</a>
+                        {% else %}
+                            <span class="muted">Sin entrega</span>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                <td><span class="badge">{{ fila.promedio|default:"—" }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+        <div class="empty-state">Todavía no hay estudiantes inscritos en esta asignatura.</div>
+    {% endif %}
+</div>
+{% endblock %}

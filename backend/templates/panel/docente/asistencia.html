@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load panel_extras %}
+{% block title %}Asistencia · {{ asignatura.nombre }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Asistencia · {{ asignatura.nombre }}</h1>
+    <a href="{% url 'panel:docente_asignaturas' %}" class="btn btn-secondary">Volver</a>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="get" style="display:flex; gap:10px; align-items:end;">
+        <div class="form-field">
+            <label for="fecha">Fecha de la clase</label>
+            <input type="date" id="fecha" name="fecha" value="{{ fecha|date:'Y-m-d' }}" onchange="this.form.submit()">
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    {% if inscripciones %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Estudiante</th>
+                <th>Presente</th>
+                <th>Ausente</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for inscripcion in inscripciones %}
+                <tr>
+                    <td>{{ inscripcion.estudiante.first_name }} {{ inscripcion.estudiante.last_name }}</td>
+                    <td>
+                        <input type="radio" name="estado_{{ inscripcion.pk }}" value="PRESENTE"
+                               {% if registros|get_item:inscripcion.pk == "PRESENTE" %}checked{% endif %}>
+                    </td>
+                    <td>
+                        <input type="radio" name="estado_{{ inscripcion.pk }}" value="AUSENTE"
+                               {% if registros|get_item:inscripcion.pk == "AUSENTE" %}checked{% endif %}>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar asistencia</button>
+        </div>
+    </form>
+    {% else %}
+        <div class="empty-state">Esta asignatura todavía no tiene estudiantes inscritos.</div>
+    {% endif %}
+</div>
+{% endblock %}

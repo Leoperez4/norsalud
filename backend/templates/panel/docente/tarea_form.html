@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ titulo }} · {{ asignatura.nombre }}</h1>
+</div>
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-field{% if field.name == 'descripcion' %} full{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{% url 'panel:docente_tareas' asignatura.pk %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

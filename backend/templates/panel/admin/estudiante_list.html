@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Estudiantes | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Estudiantes</h1>
+    <a href="{% url 'panel:estudiante_create' %}" class="btn btn-primary">+ Matricular estudiante</a>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="get" style="display:flex; gap:10px; align-items:end;">
+        <div class="form-field" style="margin-bottom:0; flex:1; max-width:320px;">
+            <label for="cedula">Buscar por cédula</label>
+            <input type="text" id="cedula" name="cedula" value="{{ cedula_buscada }}" placeholder="Ej. 1234">
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        {% if cedula_buscada %}
+            <a href="{% url 'panel:estudiante_list' %}" class="btn btn-secondary">Limpiar</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card">
+    {% if estudiantes %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>C.C.</th>
+            <th>Programa</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for estudiante in estudiantes %}
+            <tr>
+                <td>{{ estudiante.first_name }} {{ estudiante.last_name }}</td>
+                <td>{{ estudiante.cedula }}</td>
+                <td>{{ estudiante.programa|default:"—" }}</td>
+                <td>{{ estudiante.email }}</td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_detail' estudiante.pk %}">Ver</a>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_notas' estudiante.pk %}">Notas</a>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_update' estudiante.pk %}">Editar</a>
+                    <a class="btn btn-danger btn-sm" href="{% url 'panel:estudiante_delete' estudiante.pk %}">Eliminar</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% elif cedula_buscada %}
+        <div class="empty-state">No se encontró ningún estudiante con esa cédula.</div>
+    {% else %}
+        <div class="empty-state">Todavía no hay estudiantes registrados.</div>
+    {% endif %}
+</div>
+{% endblock %}

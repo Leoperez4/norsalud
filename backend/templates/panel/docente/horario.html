@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Mi horario | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Mi horario</h1>
+</div>
+
+<div class="day-tabs">
+    {% for valor, etiqueta in dias %}
+        <a href="{% url 'panel:docente_horario' %}?dia={{ valor }}" class="{% if valor == dia_actual %}active{% endif %}">{{ etiqueta }}</a>
+    {% endfor %}
+</div>
+
+<div class="card">
+    {% if horarios %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Salón</th>
+            <th>Asignatura</th>
+            <th>Hora inicio</th>
+            <th>Hora fin</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for horario in horarios %}
+            <tr>
+                <td>{{ horario.salon }}</td>
+                <td>{{ horario.asignatura }}</td>
+                <td>{{ horario.hora_inicio|time:"H:i" }}</td>
+                <td>{{ horario.hora_fin|time:"H:i" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">No tienes clases programadas para este día.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Asistencias · {{ asignatura.nombre }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Asistencias · {{ asignatura.nombre }}</h1>
+    <a href="{% url 'panel:estudiante_asignaturas' %}" class="btn btn-secondary">Volver</a>
+</div>
+
+<div class="card">
+    {% if fallas %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Estado</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for falla in fallas %}
+            <tr>
+                <td>{{ falla.fecha }}</td>
+                <td><span class="badge" style="background:#fbe9ea; color:#c23a46;">Ausente</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">No tienes fallas registradas en esta asignatura. 🎉</div>
+    {% endif %}
+</div>
+{% endblock %}

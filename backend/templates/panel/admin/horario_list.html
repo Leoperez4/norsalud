@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Horario | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Horario general</h1>
+    <a href="{% url 'panel:horario_create' %}" class="btn btn-primary">+ Agregar clase</a>
+</div>
+
+<div class="day-tabs">
+    {% for valor, etiqueta in dias %}
+        <a href="{% url 'panel:horario' %}?dia={{ valor }}" class="{% if valor == dia_actual %}active{% endif %}">{{ etiqueta }}</a>
+    {% endfor %}
+</div>
+
+<div class="card">
+    {% if horarios %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Salón</th>
+            <th>Asignatura</th>
+            <th>Docente</th>
+            <th>Hora inicio</th>
+            <th>Hora fin</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for horario in horarios %}
+            <tr>
+                <td>{{ horario.salon }}</td>
+                <td>{{ horario.asignatura }}</td>
+                <td>{{ horario.asignatura.docente|default:"Sin asignar" }}</td>
+                <td>{{ horario.hora_inicio|time:"H:i" }}</td>
+                <td>{{ horario.hora_fin|time:"H:i" }}</td>
+                <td>
+                    <a class="btn btn-danger btn-sm" href="{% url 'panel:horario_delete' horario.pk %}">Eliminar</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">No hay clases programadas para este día.</div>
+    {% endif %}
+</div>
+{% endblock %}

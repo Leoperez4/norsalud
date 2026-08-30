@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Programas | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Programas</h1>
+    <a href="{% url 'panel:asignatura_list' %}" class="btn btn-secondary">Volver a asignaturas</a>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <p style="margin: 0 0 12px; font-weight: 600; color: var(--azul-marino-oscuro);">Agregar programa</p>
+    <form method="post" style="display:flex; gap:10px; align-items:start;">
+        {% csrf_token %}
+        <div class="form-field" style="flex:1; margin-bottom:0;">
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary">+ Agregar programa</button>
+    </form>
+</div>
+
+<div class="card">
+    {% if programas %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for programa in programas %}
+            <tr>
+                <td>{{ programa.nombre }}</td>
+                <td>
+                    <form method="post" action="{% url 'panel:programa_eliminar' programa.pk %}" onsubmit="return confirm('¿Eliminar este programa? Solo se puede si ninguna asignatura lo está usando.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">Todavía no hay programas registrados.</div>
+    {% endif %}
+</div>
+{% endblock %}
