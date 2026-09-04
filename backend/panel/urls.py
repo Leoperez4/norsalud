@@ -1,4 +1,5 @@
-from django.urls import path
+from django.contrib.auth import views as auth_views
+from django.urls import path, reverse_lazy
 
 from . import views, views_docente, views_estudiante
 
@@ -8,6 +9,36 @@ urlpatterns = [
     path("login/", views.PanelLoginView.as_view(), name="login"),
     path("logout/", views.PanelLogoutView.as_view(), name="logout"),
     path("", views.home, name="home"),
+
+    # Recuperar contraseña (RF-02)
+    path(
+        "password-reset/",
+        auth_views.PasswordResetView.as_view(
+            template_name="panel/password_reset_form.html",
+            email_template_name="panel/password_reset_email.html",
+            subject_template_name="panel/password_reset_subject.txt",
+            success_url=reverse_lazy("panel:password_reset_done"),
+        ),
+        name="password_reset",
+    ),
+    path(
+        "password-reset/enviado/",
+        auth_views.PasswordResetDoneView.as_view(template_name="panel/password_reset_done.html"),
+        name="password_reset_done",
+    ),
+    path(
+        "password-reset/confirmar/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="panel/password_reset_confirm.html",
+            success_url=reverse_lazy("panel:password_reset_complete"),
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "password-reset/completado/",
+        auth_views.PasswordResetCompleteView.as_view(template_name="panel/password_reset_complete.html"),
+        name="password_reset_complete",
+    ),
 
     # Asignaturas
     path("asignaturas/", views.AsignaturaListView.as_view(), name="asignatura_list"),
