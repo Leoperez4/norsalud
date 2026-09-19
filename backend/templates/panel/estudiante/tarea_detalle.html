@@ -7,8 +7,8 @@
 </div>
 
 <div class="card" style="margin-bottom: 20px;">
+    <p style="margin: 0 0 16px; white-space: pre-line; line-height: 1.5;">{{ tarea.descripcion }}</p>
     <ul class="detail-list">
-        <li><span>Descripción</span><span>{{ tarea.descripcion }}</span></li>
         <li><span>Fecha de cierre</span><span>{{ tarea.fecha_entrega }}</span></li>
         {% if tarea.archivo_adjunto %}
         <li><span>Archivo del docente</span><span><a href="{{ tarea.archivo_adjunto.url }}" target="_blank">Descargar</a></span></li>

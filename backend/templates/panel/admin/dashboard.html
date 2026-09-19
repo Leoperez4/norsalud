@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Inicio | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Hola, {{ user.first_name }}</h1>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-value">{{ stats.estudiantes }}</span>
+        <span class="stat-label">Estudiantes matriculados</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ stats.docentes }}</span>
+        <span class="stat-label">Docentes</span>
+    </div>
+    <div class="stat-card accent">
+        <span class="stat-value">{{ stats.asignaturas }}</span>
+        <span class="stat-label">Asignaturas activas</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ stats.programas }}</span>
+        <span class="stat-label">Programas</span>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">Asignaturas recientes</h2>
+    {% if asignaturas_recientes %}
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Programa</th>
+            <th>Docente</th>
+            <th>Cupos</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for asignatura in asignaturas_recientes %}
+            <tr>
+                <td><a href="{% url 'panel:asignatura_detail' asignatura.pk %}">{{ asignatura.nombre }}</a></td>
+                <td>{{ asignatura.programa }}</td>
+                <td>{{ asignatura.docente|default:"Sin asignar" }}</td>
+                <td>{{ asignatura.cupos_ocupados }} / {{ asignatura.cupos }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">Todavía no hay asignaturas creadas. <a href="{% url 'panel:asignatura_create' %}">Crea la primera</a>.</div>
+    {% endif %}
+</div>
+{% endblock %}

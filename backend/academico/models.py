@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.db import models
 
@@ -89,3 +91,9 @@ class Horario(models.Model):
 
     def __str__(self):
         return f"{self.asignatura} - {self.get_dia_semana_display()} {self.hora_inicio}-{self.hora_fin}"
+
+    @staticmethod
+    def dia_de_hoy():
+        """Código de día (LUN..VIE) para hoy, o None si es fin de semana."""
+        mapa = {0: "LUN", 1: "MAR", 2: "MIE", 3: "JUE", 4: "VIE"}
+        return mapa.get(datetime.date.today().weekday())

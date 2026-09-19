@@ -25,12 +25,14 @@
                 <td>{{ item.tarea.titulo }}</td>
                 <td>{{ item.tarea.fecha_entrega }}</td>
                 <td>
-                    {% if item.entrega.calificacion is not None %}
-                        <span class="badge">Calificada · {{ item.entrega.calificacion }}</span>
-                    {% elif item.entrega %}
+                    {% if item.estado == "calificada" %}
+                        <span class="badge badge-success">Calificada · {{ item.entrega.calificacion }}</span>
+                    {% elif item.estado == "entregada" %}
                         <span class="badge">Entregada</span>
+                    {% elif item.estado == "vencida" %}
+                        <span class="badge badge-danger">Vencida</span>
                     {% else %}
-                        <span class="badge" style="background: var(--warn-soft, #fff6e0); color:#a5720b;">Pendiente</span>
+                        <span class="badge badge-warning">Pendiente</span>
                     {% endif %}
                 </td>
                 <td>

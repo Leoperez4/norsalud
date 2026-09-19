@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ titulo }}</h1>
+</div>
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-field full">
+            <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{% url 'panel:programa_list' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

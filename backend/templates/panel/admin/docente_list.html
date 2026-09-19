@@ -21,32 +21,20 @@
 
 <div class="card">
     {% if docentes %}
-    <table class="data-table">
-        <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>C.C.</th>
-            <th>Programa</th>
-            <th>Correo</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
         {% for docente in docentes %}
-            <tr>
-                <td>{{ docente.first_name }} {{ docente.last_name }}</td>
-                <td>{{ docente.cedula }}</td>
-                <td>{{ docente.programa|default:"—" }}</td>
-                <td>{{ docente.email }}</td>
-                <td class="actions-cell">
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_detail' docente.pk %}">Ver</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_update' docente.pk %}">Editar</a>
-                    <a class="btn btn-danger btn-sm" href="{% url 'panel:docente_delete' docente.pk %}">Eliminar</a>
-                </td>
-            </tr>
+        <div class="person-card">
+            <a class="stretched-link" href="{% url 'panel:docente_detail' docente.pk %}" aria-label="Ver detalle de {{ docente.first_name }} {{ docente.last_name }}"></a>
+            <div class="person-card-info">
+                <h3>{{ docente.first_name }} {{ docente.last_name }}</h3>
+                <span class="item-meta">C.C. {{ docente.cedula }} · {{ docente.programa|default:"Sin programa" }}</span>
+                <span class="item-meta">{{ docente.email }}</span>
+            </div>
+            <div class="person-card-actions">
+                <a class="btn btn-secondary btn-icon" href="{% url 'panel:docente_update' docente.pk %}" title="Editar">✏️<span class="sr-only">Editar</span></a>
+                <a class="btn btn-danger btn-icon" href="{% url 'panel:docente_delete' docente.pk %}" title="Eliminar">🗑<span class="sr-only">Eliminar</span></a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
     {% elif cedula_buscada %}
         <div class="empty-state">No se encontró ningún docente con esa cédula.</div>
     {% else %}

@@ -31,10 +31,11 @@
         {% for programa in programas %}
             <tr>
                 <td>{{ programa.nombre }}</td>
-                <td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-icon" href="{% url 'panel:programa_update' programa.pk %}" title="Editar">✏️<span class="sr-only">Editar</span></a>
                     <form method="post" action="{% url 'panel:programa_eliminar' programa.pk %}" onsubmit="return confirm('¿Eliminar este programa? Solo se puede si ninguna asignatura lo está usando.');">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        <button type="submit" class="btn btn-danger btn-icon" title="Eliminar">🗑<span class="sr-only">Eliminar</span></button>
                     </form>
                 </td>
             </tr>

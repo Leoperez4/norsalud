@@ -17,19 +17,29 @@
             <th>#</th>
             <th>Título</th>
             <th>Fecha de cierre</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
-        {% for tarea in tareas %}
+        {% for fila in tareas %}
             <tr>
-                <td>{{ tarea.numero }}</td>
-                <td>{{ tarea.titulo }}</td>
-                <td>{{ tarea.fecha_entrega }}</td>
+                <td>{{ fila.tarea.numero }}</td>
+                <td>{{ fila.tarea.titulo }}</td>
+                <td>{{ fila.tarea.fecha_entrega }}</td>
+                <td>
+                    {% if fila.por_calificar %}
+                        <span class="badge badge-warning">{{ fila.por_calificar }} por calificar</span>
+                    {% elif fila.vencida %}
+                        <span class="badge badge-danger">Vencida</span>
+                    {% else %}
+                        <span class="badge">{{ fila.entregadas }} entregada{{ fila.entregadas|pluralize }}</span>
+                    {% endif %}
+                </td>
                 <td class="actions-cell">
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_tarea_entregas' tarea.pk %}">Ver entregas</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_tarea_update' tarea.pk %}">Editar</a>
-                    <a class="btn btn-danger btn-sm" href="{% url 'panel:docente_tarea_delete' tarea.pk %}">Eliminar</a>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_tarea_entregas' fila.tarea.pk %}">Ver entregas</a>
+                    <a class="btn btn-secondary btn-icon" href="{% url 'panel:docente_tarea_update' fila.tarea.pk %}" title="Editar">✏️<span class="sr-only">Editar</span></a>
+                    <a class="btn btn-danger btn-icon" href="{% url 'panel:docente_tarea_delete' fila.tarea.pk %}" title="Eliminar">🗑<span class="sr-only">Eliminar</span></a>
                 </td>
             </tr>
         {% endfor %}

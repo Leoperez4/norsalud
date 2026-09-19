@@ -27,7 +27,7 @@
                 {% for entrega in fila.notas %}
                     <td>
                         {% if entrega and entrega.calificacion is not None %}
-                            <a href="{% url 'panel:docente_entrega_calificar' entrega.pk %}">{{ entrega.calificacion }}</a>
+                            <a href="{% url 'panel:docente_entrega_calificar' entrega.pk %}" class="badge badge-success">{{ entrega.calificacion }}</a>
                         {% elif entrega %}
                             <a href="{% url 'panel:docente_entrega_calificar' entrega.pk %}" class="btn btn-secondary btn-sm">Calificar</a>
                         {% else %}
@@ -35,7 +35,7 @@
                         {% endif %}
                     </td>
                 {% endfor %}
-                <td><span class="badge">{{ fila.promedio|default:"—" }}</span></td>
+                <td><span class="badge badge-success">{{ fila.promedio|default:"—" }}</span></td>
             </tr>
         {% endfor %}
         </tbody>

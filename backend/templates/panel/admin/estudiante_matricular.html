@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Asignaturas de {{ estudiante.first_name }} | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Asignaturas · {{ estudiante.first_name }} {{ estudiante.last_name }}</h1>
+    <a href="{% url 'panel:estudiante_list' %}" class="btn btn-secondary">Volver</a>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <p style="margin: 0 0 12px; font-weight: 600; color: var(--azul-marino-oscuro);">Registrar en una asignatura</p>
+    {% if asignaturas_disponibles %}
+    <form method="post" style="display:flex; gap: 10px; flex-wrap: wrap;">
+        {% csrf_token %}
+        <select name="asignatura" style="flex:1; min-width:240px; padding:10px; border:1px solid var(--borde); border-radius:6px;">
+            {% for asignatura in asignaturas_disponibles %}
+                <option value="{{ asignatura.pk }}">{{ asignatura.nombre }} · {{ asignatura.curso }} ({{ asignatura.cupos_disponibles }} cupos)</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">+ Registrar asignatura</button>
+    </form>
+    {% else %}
+        <p class="muted">No hay asignaturas disponibles para registrar (ya está inscrito en todas o no quedan cupos).</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    {% if inscripciones %}
+        {% for inscripcion in inscripciones %}
+        <div class="course-card">
+            <div class="course-card-header">
+                <div>
+                    <h3>{{ inscripcion.asignatura.nombre }}</h3>
+                    <span class="item-meta">{{ inscripcion.asignatura.curso }} · {{ inscripcion.asignatura.semestre }} · {{ inscripcion.asignatura.programa }}</span>
+                </div>
+                <form method="post" action="{% url 'panel:estudiante_inscripcion_retirar' estudiante.pk inscripcion.pk %}" onsubmit="return confirm('¿Retirar a este estudiante de la asignatura?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Retirar</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">Este estudiante todavía no está registrado en ninguna asignatura.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -21,6 +21,39 @@ def _asignatura_del_docente(request, pk):
 # ---------- Inicio docente (RF-29) ----------
 
 @login_required
+def docente_home(request):
+    asignaturas = Asignatura.objects.filter(docente=request.user).select_related("programa")
+
+    entregas_por_calificar_qs = EntregaEstudiante.objects.filter(
+        entregable__asignatura__docente=request.user, calificacion__isnull=True
+    ).select_related("entregable", "entregable__asignatura", "estudiante").order_by("fecha_envio")
+
+    hoy_dia = Horario.dia_de_hoy()
+    clases_hoy = []
+    if hoy_dia:
+        clases_hoy = Horario.objects.filter(
+            asignatura__docente=request.user, dia_semana=hoy_dia
+        ).select_related("asignatura").order_by("hora_inicio")
+
+    anuncios_recientes = Anuncio.objects.filter(
+        asignatura__docente=request.user
+    ).select_related("asignatura").order_by("-fecha_publicacion")[:5]
+
+    total_por_calificar = entregas_por_calificar_qs.count()
+    entregas_mostradas = list(entregas_por_calificar_qs[:6])
+
+    return render(request, "panel/docente/dashboard.html", {
+        "section": "inicio",
+        "total_asignaturas": asignaturas.count(),
+        "total_por_calificar": total_por_calificar,
+        "entregas_por_calificar": entregas_mostradas,
+        "entregas_restantes": total_por_calificar - len(entregas_mostradas),
+        "clases_hoy": clases_hoy,
+        "anuncios_recientes": anuncios_recientes,
+    })
+
+
+@login_required
 def docente_asignaturas(request):
     asignaturas = Asignatura.objects.filter(docente=request.user).select_related("programa")
     return render(request, "panel/docente/asignatura_list.html", {
@@ -47,7 +80,7 @@ def docente_asistencia(request, pk):
                     inscripcion=inscripcion, fecha=fecha, defaults={"estado": estado}
                 )
         messages.success(request, "Asistencia guardada correctamente.")
-        return redirect(f"{reverse('panel:docente_asistencia', args=[pk])}?fecha={fecha.isoformat()}")
+        return redirect("panel:docente_asignaturas")
 
     registros = {a.inscripcion_id: a.estado for a in Asistencia.objects.filter(
         inscripcion__asignatura=asignatura, fecha=fecha
@@ -67,7 +100,16 @@ def docente_asistencia(request, pk):
 @login_required
 def docente_tareas(request, pk):
     asignatura = _asignatura_del_docente(request, pk)
-    tareas = asignatura.entregables.order_by("numero")
+    hoy = datetime.date.today()
+    tareas = []
+    for tarea in asignatura.entregables.order_by("numero"):
+        entregas = tarea.entregas.all()
+        tareas.append({
+            "tarea": tarea,
+            "vencida": tarea.fecha_entrega < hoy,
+            "entregadas": entregas.count(),
+            "por_calificar": entregas.filter(calificacion__isnull=True).count(),
+        })
     return render(request, "panel/docente/tarea_list.html", {
         "section": "asignaturas",
         "asignatura": asignatura,

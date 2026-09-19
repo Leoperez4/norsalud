@@ -23,7 +23,7 @@
                 <td>{{ fila.tarea.titulo }}</td>
                 <td>
                     {% if fila.entrega.calificacion is not None %}
-                        <span class="badge">{{ fila.entrega.calificacion }}</span>
+                        <span class="badge badge-success">{{ fila.entrega.calificacion }}</span>
                     {% else %}
                         <span class="muted">Sin calificar</span>
                     {% endif %}
@@ -33,7 +33,7 @@
         </tbody>
     </table>
     <p style="margin-top:16px; font-weight:600; color: var(--azul-marino-oscuro);">
-        Promedio general: <span class="badge">{{ promedio|default:"—" }}</span>
+        Promedio general: <span class="badge badge-success">{{ promedio|default:"—" }}</span>
     </p>
     {% else %}
         <div class="empty-state">Todavía no hay actividades registradas en esta asignatura.</div>

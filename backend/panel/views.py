@@ -38,12 +38,31 @@ class PanelLogoutView(LogoutView):
 def home(request):
     rol = getattr(request.user.rol, "nombre", None)
     if rol == "Administrador":
-        return redirect("panel:asignatura_list")
+        return _admin_home(request)
     if rol == "Docente":
-        return redirect("panel:docente_asignaturas")
+        from .views_docente import docente_home
+        return docente_home(request)
     if rol == "Estudiante":
-        return redirect("panel:estudiante_asignaturas")
+        from .views_estudiante import estudiante_home
+        return estudiante_home(request)
     return render(request, "panel/pendiente.html", {"rol": rol})
+
+
+def _admin_home(request):
+    stats = {
+        "estudiantes": Usuario.objects.filter(rol__nombre="Estudiante").count(),
+        "docentes": Usuario.objects.filter(rol__nombre="Docente").count(),
+        "asignaturas": Asignatura.objects.count(),
+        "programas": Programa.objects.count(),
+    }
+    asignaturas_recientes = Asignatura.objects.select_related(
+        "programa", "docente"
+    ).order_by("-id")[:6]
+    return render(request, "panel/admin/dashboard.html", {
+        "section": "inicio",
+        "stats": stats,
+        "asignaturas_recientes": asignaturas_recientes,
+    })
 
 
 # ---------- Asignaturas (RF-03 a RF-11) ----------
@@ -324,6 +343,45 @@ class EstudianteDeleteView(AdminRequiredMixin, DeleteView):
 
 
 @admin_required
+def estudiante_matricular(request, pk):
+    """Registrar/retirar al estudiante de asignaturas, desde su propia ficha."""
+    estudiante = get_object_or_404(Usuario, pk=pk, rol__nombre=Rol.ESTUDIANTE)
+
+    if request.method == "POST":
+        asignatura = get_object_or_404(Asignatura, pk=request.POST.get("asignatura"))
+        if asignatura.cupos_ocupados >= asignatura.cupos:
+            messages.error(request, "No hay cupos disponibles en esa asignatura.")
+        elif Inscripcion.objects.filter(asignatura=asignatura, estudiante=estudiante).exists():
+            messages.warning(request, "El estudiante ya está registrado en esa asignatura.")
+        else:
+            Inscripcion.objects.create(asignatura=asignatura, estudiante=estudiante)
+            messages.success(request, "Asignatura registrada correctamente.")
+        return redirect("panel:estudiante_matricular", pk=pk)
+
+    inscritas_ids = Inscripcion.objects.filter(estudiante=estudiante).values_list("asignatura_id", flat=True)
+    asignaturas_disponibles = [
+        a for a in Asignatura.objects.exclude(pk__in=inscritas_ids).select_related("programa")
+        if a.cupos_disponibles > 0
+    ]
+
+    return render(request, "panel/admin/estudiante_matricular.html", {
+        "section": "estudiantes",
+        "estudiante": estudiante,
+        "inscripciones": Inscripcion.objects.filter(estudiante=estudiante)
+            .select_related("asignatura", "asignatura__programa").order_by("asignatura__nombre"),
+        "asignaturas_disponibles": asignaturas_disponibles,
+    })
+
+
+@admin_required
+def estudiante_inscripcion_retirar(request, pk, inscripcion_pk):
+    inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_pk, estudiante_id=pk)
+    inscripcion.delete()
+    messages.success(request, "Estudiante retirado de la asignatura.")
+    return redirect("panel:estudiante_matricular", pk=pk)
+
+
+@admin_required
 def estudiante_notas(request, pk):
     """Promedio del estudiante en cada una de sus asignaturas (RF-46)."""
     estudiante = get_object_or_404(Usuario, pk=pk, rol__nombre=Rol.ESTUDIANTE)
@@ -416,6 +474,20 @@ def programa_list(request):
         "programas": programas,
         "form": form,
     })
+
+
+class ProgramaUpdateView(AdminRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Programa
+    form_class = ProgramaForm
+    template_name = "panel/admin/programa_form.html"
+    success_url = reverse_lazy("panel:programa_list")
+    success_message = "Programa actualizado correctamente."
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["section"] = "asignaturas"
+        ctx["titulo"] = "Editar programa"
+        return ctx
 
 
 @admin_required

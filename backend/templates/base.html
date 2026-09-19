@@ -10,10 +10,13 @@
 <body>
 {% if user.is_authenticated %}
 <header class="navbar">
-    <div class="navbar-brand">
+    <a href="{% url 'panel:home' %}" class="navbar-brand">
         <span class="logo"><img src="{% static 'img/logo-norsalud.png' %}" alt="Norsalud" class="logo-img"></span> Norsalud
-    </div>
+    </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+    <label for="nav-toggle" class="nav-toggle-label" aria-label="Abrir menú">&#9776;</label>
     <nav class="navbar-links">
+        <a href="{% url 'panel:home' %}" class="{% if section == 'inicio' %}active{% endif %}">Inicio</a>
         {% if user.rol.nombre == "Administrador" %}
             <a href="{% url 'panel:asignatura_list' %}" class="{% if section == 'asignaturas' %}active{% endif %}">Asignaturas</a>
             <a href="{% url 'panel:docente_list' %}" class="{% if section == 'docentes' %}active{% endif %}">Docentes</a>
@@ -31,7 +34,7 @@
         <span>{{ user.first_name }} {{ user.last_name }}</span>
         <form method="post" action="{% url 'panel:logout' %}">
             {% csrf_token %}
-            <button type="submit">Salir</button>
+            <button type="submit" title="Cerrar sesión">⏻ Salir</button>
         </form>
     </div>
 </header>

@@ -26,7 +26,7 @@
                 <td>{{ entrega.fecha_envio }}</td>
                 <td><a href="{{ entrega.archivo.url }}" target="_blank">Descargar</a></td>
                 <td>{{ entrega.comentario_estudiante|default:"—"|truncatechars:40 }}</td>
-                <td>{% if entrega.calificacion is not None %}<span class="badge">{{ entrega.calificacion }}</span>{% else %}—{% endif %}</td>
+                <td>{% if entrega.calificacion is not None %}<span class="badge badge-success">{{ entrega.calificacion }}</span>{% else %}—{% endif %}</td>
                 <td>
                     <a class="btn btn-secondary btn-sm" href="{% url 'panel:docente_entrega_calificar' entrega.pk %}">Calificar</a>
                 </td>

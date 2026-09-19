@@ -51,6 +51,7 @@ urlpatterns = [
 
     # Programas
     path("programas/", views.programa_list, name="programa_list"),
+    path("programas/<int:pk>/editar/", views.ProgramaUpdateView.as_view(), name="programa_update"),
     path("programas/<int:pk>/eliminar/", views.programa_eliminar, name="programa_eliminar"),
 
     # Docentes
@@ -67,6 +68,8 @@ urlpatterns = [
     path("estudiantes/<int:pk>/editar/", views.EstudianteUpdateView.as_view(), name="estudiante_update"),
     path("estudiantes/<int:pk>/eliminar/", views.EstudianteDeleteView.as_view(), name="estudiante_delete"),
     path("estudiantes/<int:pk>/notas/", views.estudiante_notas, name="estudiante_notas"),
+    path("estudiantes/<int:pk>/asignaturas/", views.estudiante_matricular, name="estudiante_matricular"),
+    path("estudiantes/<int:pk>/asignaturas/<int:inscripcion_pk>/retirar/", views.estudiante_inscripcion_retirar, name="estudiante_inscripcion_retirar"),
 
     # Horario
     path("horario/", views.horario_list, name="horario"),

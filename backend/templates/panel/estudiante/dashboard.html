@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Inicio | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Hola, {{ user.first_name }}</h1>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-value">{{ total_asignaturas }}</span>
+        <span class="stat-label">Cursos activos</span>
+    </div>
+    <div class="stat-card {% if tareas_pendientes %}accent{% endif %}">
+        <span class="stat-value">{{ tareas_pendientes|length }}</span>
+        <span class="stat-label">Tareas por entregar</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ clases_hoy|length }}</span>
+        <span class="stat-label">Clases hoy</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <h2 class="card-title">Tareas pendientes</h2>
+        {% if tareas_pendientes %}
+        <ul class="panel-list">
+            {% for tarea in tareas_pendientes %}
+            <li>
+                <a class="item-title" href="{% url 'panel:estudiante_tarea_detalle' tarea.pk %}">{{ tarea.titulo }}</a>
+                <span class="item-meta">
+                    {{ tarea.asignatura.nombre }} ·
+                    {% if tarea.fecha_entrega < hoy %}
+                        <span class="badge badge-danger">Vencida el {{ tarea.fecha_entrega|date:"d/m/Y" }}</span>
+                    {% else %}
+                        Entrega antes del {{ tarea.fecha_entrega|date:"d/m/Y" }}
+                    {% endif %}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <div class="empty-state">No tienes tareas pendientes por entregar.</div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Clases de hoy</h2>
+        {% if clases_hoy %}
+        <ul class="panel-list">
+            {% for horario in clases_hoy %}
+            <li>
+                <span class="item-title">{{ horario.hora_inicio|time:"H:i" }} - {{ horario.hora_fin|time:"H:i" }} · {{ horario.asignatura.nombre }}</span>
+                <span class="item-meta">Salón {{ horario.salon }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <div class="empty-state">No tienes clases programadas para hoy.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-grid" style="margin-top: 20px;">
+    <div class="card">
+        <h2 class="card-title">Últimas calificaciones</h2>
+        {% if notas_recientes %}
+        <ul class="panel-list">
+            {% for entrega in notas_recientes %}
+            <li>
+                <span class="item-title">{{ entrega.entregable.titulo }} <span class="badge badge-success">{{ entrega.calificacion }}</span></span>
+                <span class="item-meta">{{ entrega.entregable.asignatura.nombre }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <div class="empty-state">Todavía no tienes calificaciones registradas.</div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Anuncios recientes</h2>
+        {% if anuncios_recientes %}
+        <ul class="panel-list">
+            {% for anuncio in anuncios_recientes %}
+            <li>
+                <span class="item-title">{{ anuncio.asignatura.nombre }}</span>
+                <span class="item-meta">{{ anuncio.contenido|truncatechars:100 }} · {{ anuncio.fecha_publicacion|date:"d/m/Y" }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <div class="empty-state">Todavía no hay anuncios en tus cursos.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -21,33 +21,22 @@
 
 <div class="card">
     {% if estudiantes %}
-    <table class="data-table">
-        <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>C.C.</th>
-            <th>Programa</th>
-            <th>Correo</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
         {% for estudiante in estudiantes %}
-            <tr>
-                <td>{{ estudiante.first_name }} {{ estudiante.last_name }}</td>
-                <td>{{ estudiante.cedula }}</td>
-                <td>{{ estudiante.programa|default:"—" }}</td>
-                <td>{{ estudiante.email }}</td>
-                <td class="actions-cell">
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_detail' estudiante.pk %}">Ver</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_notas' estudiante.pk %}">Notas</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_update' estudiante.pk %}">Editar</a>
-                    <a class="btn btn-danger btn-sm" href="{% url 'panel:estudiante_delete' estudiante.pk %}">Eliminar</a>
-                </td>
-            </tr>
+        <div class="person-card">
+            <a class="stretched-link" href="{% url 'panel:estudiante_detail' estudiante.pk %}" aria-label="Ver detalle de {{ estudiante.first_name }} {{ estudiante.last_name }}"></a>
+            <div class="person-card-info">
+                <h3>{{ estudiante.first_name }} {{ estudiante.last_name }}</h3>
+                <span class="item-meta">C.C. {{ estudiante.cedula }} · {{ estudiante.programa|default:"Sin programa" }}</span>
+                <span class="item-meta">{{ estudiante.email }}</span>
+            </div>
+            <div class="person-card-actions">
+                <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_matricular' estudiante.pk %}">+ Registrar asignatura</a>
+                <a class="btn btn-secondary btn-icon" href="{% url 'panel:estudiante_notas' estudiante.pk %}" title="Notas">📋<span class="sr-only">Notas</span></a>
+                <a class="btn btn-secondary btn-icon" href="{% url 'panel:estudiante_update' estudiante.pk %}" title="Editar">✏️<span class="sr-only">Editar</span></a>
+                <a class="btn btn-danger btn-icon" href="{% url 'panel:estudiante_delete' estudiante.pk %}" title="Eliminar">🗑<span class="sr-only">Eliminar</span></a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
     {% elif cedula_buscada %}
         <div class="empty-state">No se encontró ningún estudiante con esa cédula.</div>
     {% else %}

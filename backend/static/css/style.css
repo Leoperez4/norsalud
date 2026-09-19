@@ -42,6 +42,12 @@ a {
     gap: 10px;
     font-weight: 600;
     font-size: 1.1rem;
+    text-decoration: none;
+    opacity: 1;
+}
+
+.navbar-brand:hover {
+    opacity: 0.85;
 }
 
 .navbar-brand .logo {
@@ -101,6 +107,19 @@ a {
 
 .navbar-user button:hover {
     background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-toggle-checkbox {
+    display: none;
+}
+
+.nav-toggle-label {
+    display: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--blanco);
+    padding: 6px 4px;
 }
 
 /* ---------- Layout ---------- */
@@ -173,6 +192,30 @@ a {
     font-size: 0.8rem;
 }
 
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    line-height: 1;
+    flex: 0 0 auto;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* ---------- Tables ---------- */
 table.data-table {
     width: 100%;
@@ -209,8 +252,25 @@ table.data-table tr:hover td {
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 0.78rem;
+    font-weight: 600;
     background: var(--azul-claro);
     color: var(--azul-marino);
+    white-space: nowrap;
+}
+
+.badge-success {
+    background: #e4f7ec;
+    color: var(--verde);
+}
+
+.badge-warning {
+    background: #fff6e0;
+    color: #a5720b;
+}
+
+.badge-danger {
+    background: #fbe7e8;
+    color: var(--rojo);
 }
 
 .empty-state {
@@ -399,4 +459,269 @@ table.data-table tr:hover td {
 .detail-list li span:first-child {
     font-weight: 600;
     color: var(--azul-marino-oscuro);
+}
+
+/* ---------- Tarjetas de curso (listado con navegación a sub-secciones) ---------- */
+.course-card {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--borde);
+}
+
+.course-card:first-child {
+    padding-top: 4px;
+}
+
+.course-card:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.course-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.course-card-header h3 {
+    margin: 0 0 2px;
+    font-size: 1.05rem;
+    color: var(--azul-marino-oscuro);
+}
+
+.course-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* ---------- Tarjeta de persona (clickeable en cualquier parte) ---------- */
+.person-card {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--borde);
+    cursor: pointer;
+}
+
+.person-card:first-child {
+    padding-top: 4px;
+}
+
+.person-card:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.person-card:hover {
+    background: var(--azul-claro);
+}
+
+.person-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.person-card-info h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--azul-marino-oscuro);
+}
+
+.person-card-actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.stretched-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* ---------- Dashboard ---------- */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--blanco);
+    border-radius: 10px;
+    border: 1px solid var(--borde);
+    padding: 18px 20px;
+}
+
+.stat-card .stat-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--azul-marino-oscuro);
+    line-height: 1.2;
+}
+
+.stat-card .stat-label {
+    font-size: 0.82rem;
+    color: var(--gris-texto);
+}
+
+.stat-card.accent .stat-value {
+    color: var(--azul-acento);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.panel-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.panel-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--borde);
+}
+
+.panel-list li:last-child {
+    border-bottom: none;
+}
+
+.panel-list .item-title {
+    font-weight: 600;
+    color: var(--azul-marino-oscuro);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.panel-list .item-meta {
+    font-size: 0.82rem;
+    color: #8b90a3;
+}
+
+.card h2.card-title {
+    font-size: 1rem;
+    margin: 0 0 14px;
+    color: var(--azul-marino-oscuro);
+}
+
+/* ---------- Tablas con scroll horizontal (evita romper el layout) ---------- */
+.card:has(table.data-table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table.data-table {
+    min-width: 560px;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px 16px;
+        row-gap: 6px;
+    }
+
+    .navbar-brand {
+        order: 1;
+    }
+
+    .nav-toggle-label {
+        display: block;
+        order: 2;
+        margin-left: auto;
+    }
+
+    .navbar-links,
+    .navbar-user {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        order: 3;
+    }
+
+    .nav-toggle-checkbox:checked ~ .navbar-links,
+    .nav-toggle-checkbox:checked ~ .navbar-user {
+        display: flex;
+    }
+
+    .navbar-links {
+        gap: 2px;
+        padding-top: 6px;
+    }
+
+    .navbar-links a {
+        padding: 12px 10px;
+    }
+
+    .navbar-user {
+        justify-content: space-between;
+        flex-direction: row;
+        padding: 10px 0 14px;
+        margin-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .content {
+        padding: 18px 14px 40px;
+    }
+
+    .page-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .day-tabs {
+        flex-wrap: wrap;
+    }
+
+    .detail-list li {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 360px;
+        padding: 32px 24px;
+    }
+}
+
+@media (max-width: 400px) {
+    .login-wrapper {
+        padding: 16px;
+    }
+
+    .login-card {
+        padding: 28px 18px;
+    }
 }

@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,6 +14,47 @@ def _asignatura_del_estudiante(request, pk):
     """Devuelve la asignatura solo si el estudiante está inscrito en ella."""
     inscripcion = get_object_or_404(Inscripcion, asignatura_id=pk, estudiante=request.user)
     return inscripcion.asignatura
+
+
+# ---------- Inicio estudiante ----------
+
+@login_required
+def estudiante_home(request):
+    inscripciones = Inscripcion.objects.filter(estudiante=request.user).select_related("asignatura")
+    asignatura_ids = [i.asignatura_id for i in inscripciones]
+
+    entregadas_ids = EntregaEstudiante.objects.filter(
+        estudiante=request.user, entregable__asignatura_id__in=asignatura_ids
+    ).values_list("entregable_id", flat=True)
+
+    tareas_pendientes = Entregable.objects.filter(
+        asignatura_id__in=asignatura_ids
+    ).exclude(pk__in=entregadas_ids).select_related("asignatura").order_by("fecha_entrega")[:6]
+
+    notas_recientes = EntregaEstudiante.objects.filter(
+        estudiante=request.user, calificacion__isnull=False
+    ).select_related("entregable", "entregable__asignatura").order_by("-fecha_envio")[:5]
+
+    anuncios_recientes = Anuncio.objects.filter(
+        asignatura_id__in=asignatura_ids
+    ).select_related("asignatura").order_by("-fecha_publicacion")[:5]
+
+    hoy_dia = Horario.dia_de_hoy()
+    clases_hoy = []
+    if hoy_dia:
+        clases_hoy = Horario.objects.filter(
+            dia_semana=hoy_dia, asignatura_id__in=asignatura_ids
+        ).select_related("asignatura").order_by("hora_inicio")
+
+    return render(request, "panel/estudiante/dashboard.html", {
+        "section": "inicio",
+        "total_asignaturas": len(asignatura_ids),
+        "tareas_pendientes": tareas_pendientes,
+        "notas_recientes": notas_recientes,
+        "anuncios_recientes": anuncios_recientes,
+        "clases_hoy": clases_hoy,
+        "hoy": datetime.date.today(),
+    })
 
 
 # ---------- Mis cursos (RF-39) ----------
@@ -44,6 +87,7 @@ def estudiante_asignaturas(request):
 @login_required
 def estudiante_tareas(request, pk):
     asignatura = _asignatura_del_estudiante(request, pk)
+    hoy = datetime.date.today()
     entregas = {
         e.entregable_id: e for e in EntregaEstudiante.objects.filter(
             estudiante=request.user, entregable__asignatura=asignatura
@@ -51,7 +95,16 @@ def estudiante_tareas(request, pk):
     }
     tareas = []
     for tarea in asignatura.entregables.order_by("numero"):
-        tareas.append({"tarea": tarea, "entrega": entregas.get(tarea.pk)})
+        entrega = entregas.get(tarea.pk)
+        if entrega and entrega.calificacion is not None:
+            estado = "calificada"
+        elif entrega:
+            estado = "entregada"
+        elif tarea.fecha_entrega < hoy:
+            estado = "vencida"
+        else:
+            estado = "pendiente"
+        tareas.append({"tarea": tarea, "entrega": entrega, "estado": estado})
 
     return render(request, "panel/estudiante/tarea_list.html", {
         "section": "asignaturas",

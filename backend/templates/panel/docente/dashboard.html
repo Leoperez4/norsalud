@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Inicio | Norsalud{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Hola, {{ user.first_name }}</h1>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-value">{{ total_asignaturas }}</span>
+        <span class="stat-label">Asignaturas a cargo</span>
+    </div>
+    <div class="stat-card {% if total_por_calificar %}accent{% endif %}">
+        <span class="stat-value">{{ total_por_calificar }}</span>
+        <span class="stat-label">Entregas por calificar</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ clases_hoy|length }}</span>
+        <span class="stat-label">Clases hoy</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <h2 class="card-title">Entregas pendientes de calificar</h2>
+        {% if entregas_por_calificar %}
+        <ul class="panel-list">
+            {% for entrega in entregas_por_calificar %}
+            <li>
+                <a class="item-title" href="{% url 'panel:docente_entrega_calificar' entrega.pk %}">
+                    {{ entrega.entregable.titulo }} · {{ entrega.estudiante.first_name }} {{ entrega.estudiante.last_name }}
+                </a>
+                <span class="item-meta">{{ entrega.entregable.asignatura.nombre }} · enviada el {{ entrega.fecha_envio|date:"d/m/Y" }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if entregas_restantes > 0 %}
+            <p class="muted" style="margin: 12px 0 0; font-size: 0.85rem;">
+                Y {{ entregas_restantes }} más pendiente{{ entregas_restantes|pluralize }}.
+            </p>
+        {% endif %}
+        {% else %}
+            <div class="empty-state">No tienes entregas pendientes de calificar. ¡Vas al día!</div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Clases de hoy</h2>
+        {% if clases_hoy %}
+        <ul class="panel-list">
+            {% for horario in clases_hoy %}
+            <li>
+                <span class="item-title">{{ horario.hora_inicio|time:"H:i" }} - {{ horario.hora_fin|time:"H:i" }} · {{ horario.asignatura.nombre }}</span>
+                <span class="item-meta">Salón {{ horario.salon }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <div class="empty-state">No tienes clases programadas para hoy.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h2 class="card-title">Tus anuncios recientes</h2>
+    {% if anuncios_recientes %}
+    <ul class="panel-list">
+        {% for anuncio in anuncios_recientes %}
+        <li>
+            <span class="item-title">{{ anuncio.asignatura.nombre }}</span>
+            <span class="item-meta">{{ anuncio.contenido|truncatechars:120 }} · {{ anuncio.fecha_publicacion|date:"d/m/Y" }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <div class="empty-state">Todavía no has publicado anuncios.</div>
+    {% endif %}
+</div>
+{% endblock %}

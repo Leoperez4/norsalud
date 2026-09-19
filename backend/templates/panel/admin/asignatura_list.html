@@ -11,35 +11,22 @@
 
 <div class="card">
     {% if asignaturas %}
-    <table class="data-table">
-        <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Curso</th>
-            <th>Programa</th>
-            <th>Docente</th>
-            <th>Cupos</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
         {% for asignatura in asignaturas %}
-            <tr>
-                <td>{{ asignatura.nombre }}</td>
-                <td>{{ asignatura.curso }} · {{ asignatura.semestre }}</td>
-                <td>{{ asignatura.programa }}</td>
-                <td>{{ asignatura.docente|default:"Sin asignar" }}</td>
-                <td><span class="badge">{{ asignatura.cupos_ocupados }} / {{ asignatura.cupos }}</span></td>
-                <td class="actions-cell">
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:asignatura_detail' asignatura.pk %}">Ver</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:asignatura_estudiantes' asignatura.pk %}">Estudiantes</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:asignatura_update' asignatura.pk %}">Editar</a>
-                    <a class="btn btn-danger btn-sm" href="{% url 'panel:asignatura_delete' asignatura.pk %}">Eliminar</a>
-                </td>
-            </tr>
+        <div class="person-card">
+            <a class="stretched-link" href="{% url 'panel:asignatura_detail' asignatura.pk %}" aria-label="Ver detalle de {{ asignatura.nombre }}"></a>
+            <div class="person-card-info">
+                <h3>{{ asignatura.nombre }}</h3>
+                <span class="item-meta">{{ asignatura.curso }} · {{ asignatura.semestre }} · {{ asignatura.programa }}</span>
+                <span class="item-meta">Docente: {{ asignatura.docente|default:"Sin asignar" }}</span>
+            </div>
+            <div class="person-card-actions">
+                <span class="badge">{{ asignatura.cupos_ocupados }} / {{ asignatura.cupos }}</span>
+                <a class="btn btn-secondary btn-icon" href="{% url 'panel:asignatura_estudiantes' asignatura.pk %}" title="Estudiantes">👥<span class="sr-only">Estudiantes</span></a>
+                <a class="btn btn-secondary btn-icon" href="{% url 'panel:asignatura_update' asignatura.pk %}" title="Editar">✏️<span class="sr-only">Editar</span></a>
+                <a class="btn btn-danger btn-icon" href="{% url 'panel:asignatura_delete' asignatura.pk %}" title="Eliminar">🗑<span class="sr-only">Eliminar</span></a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
     {% else %}
         <div class="empty-state">Todavía no hay asignaturas registradas.</div>
     {% endif %}

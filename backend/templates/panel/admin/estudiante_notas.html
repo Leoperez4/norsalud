@@ -18,7 +18,7 @@
         {% for fila in filas %}
             <tr>
                 <td>{{ fila.asignatura }}</td>
-                <td><span class="badge">{{ fila.promedio|default:"—" }}</span></td>
+                <td><span class="badge badge-success">{{ fila.promedio|default:"—" }}</span></td>
             </tr>
         {% endfor %}
         </tbody>

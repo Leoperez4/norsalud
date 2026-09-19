@@ -7,35 +7,25 @@
 
 <div class="card">
     {% if inscripciones %}
-    <table class="data-table">
-        <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Curso</th>
-            <th>Programa</th>
-            <th>Promedio</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
         {% for inscripcion in inscripciones %}
-            {% with asignatura=inscripcion.asignatura %}
-            <tr>
-                <td>{{ asignatura.nombre }}</td>
-                <td>{{ asignatura.curso }} · {{ asignatura.semestre }}</td>
-                <td>{{ asignatura.programa }}</td>
-                <td><span class="badge">{{ inscripcion.promedio|default:"—" }}</span></td>
-                <td class="actions-cell">
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_tareas' asignatura.pk %}">Tareas</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_calificaciones' asignatura.pk %}">Calificaciones</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_anuncios' asignatura.pk %}">Anuncios</a>
-                    <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_asistencias' asignatura.pk %}">Asistencias</a>
-                </td>
-            </tr>
-            {% endwith %}
+        {% with asignatura=inscripcion.asignatura %}
+        <div class="course-card">
+            <div class="course-card-header">
+                <div>
+                    <h3>{{ asignatura.nombre }}</h3>
+                    <span class="item-meta">{{ asignatura.curso }} · {{ asignatura.semestre }} · {{ asignatura.programa }}</span>
+                </div>
+                <span class="badge badge-success">Promedio: {{ inscripcion.promedio|default:"—" }}</span>
+            </div>
+            <div class="course-card-actions">
+                <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_tareas' asignatura.pk %}">Tareas</a>
+                <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_calificaciones' asignatura.pk %}">Calificaciones</a>
+                <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_anuncios' asignatura.pk %}">Anuncios</a>
+                <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_asistencias' asignatura.pk %}">Asistencias</a>
+            </div>
+        </div>
+        {% endwith %}
         {% endfor %}
-        </tbody>
-    </table>
     {% else %}
         <div class="empty-state">Todavía no estás inscrito en ningún curso.</div>
     {% endif %}
