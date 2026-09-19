@@ -83,6 +83,11 @@ Después de actualizar tu copia del código (`git pull`), aplica las migraciones
 python manage.py migrate
 ```
 
-## Sobre `docker-compose.yml` y `Dockerfile`
+## Sobre `docker-compose.yml`, `Dockerfile` y despliegue en producción
 
-El proyecto también incluye una configuración de Docker (usada en una etapa anterior del desarrollo). No es necesaria para correr el proyecto de forma local — se mantiene pensando en el despliegue en AWS más adelante. Instrucciones de instalación nativa (arriba) son las recomendadas para desarrollo en tu propio computador.
+Para desarrollar en tu propio computador, usa las instrucciones de instalación
+nativa de arriba (no necesitas Docker para eso).
+
+El proyecto se despliega en un VPS usando Docker (app + base de datos, con
+Nginx y HTTPS delante). Ver [`DEPLOY.md`](DEPLOY.md) para la guía completa de
+despliegue en producción.
