@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from academico.models import Asignatura, Inscripcion
 
@@ -15,7 +16,7 @@ class Entregable(models.Model):
         "Archivo adjunto", upload_to="entregables/", blank=True, null=True
     )
     fecha_publicacion = models.DateTimeField("Fecha de publicación", auto_now_add=True)
-    fecha_entrega = models.DateField("Fecha límite de entrega")
+    fecha_entrega = models.DateTimeField("Fecha y hora límite de entrega")
 
     class Meta:
         verbose_name = "Entregable"
@@ -23,6 +24,10 @@ class Entregable(models.Model):
 
     def __str__(self):
         return f"{self.numero}. {self.titulo} ({self.asignatura})"
+
+    @property
+    def vencida(self):
+        return timezone.now() > self.fecha_entrega
 
 
 class EntregaEstudiante(models.Model):

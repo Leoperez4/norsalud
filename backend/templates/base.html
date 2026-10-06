@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Norsalud{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
 </head>
 <body>
 {% if user.is_authenticated %}
@@ -50,5 +50,45 @@
     {% endif %}
     {% block content %}{% endblock %}
 </main>
+<script>
+    // Ojo para mostrar/ocultar contraseña en todos los campos de contraseña.
+    document.querySelectorAll('input[type="password"]').forEach(function (input) {
+        var wrap = document.createElement('span');
+        wrap.className = 'password-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'password-toggle';
+        btn.setAttribute('aria-label', 'Mostrar contraseña');
+        btn.title = 'Mostrar contraseña';
+        btn.textContent = '👁';
+        btn.addEventListener('click', function () {
+            var oculto = input.type === 'password';
+            input.type = oculto ? 'text' : 'password';
+            btn.classList.toggle('activo', oculto);
+            var texto = oculto ? 'Ocultar contraseña' : 'Mostrar contraseña';
+            btn.setAttribute('aria-label', texto);
+            btn.title = texto;
+        });
+        wrap.appendChild(btn);
+    });
+
+    // Horarios: al elegir la hora de inicio, sugiere la de finalización (+1 hora) si está vacía o es anterior.
+    (function () {
+        var ini = document.querySelector('select[data-hora="inicio"]');
+        var fin = document.querySelector('select[data-hora="fin"]');
+        if (!ini || !fin) return;
+        ini.addEventListener('change', function () {
+            if (fin.value && fin.value > ini.value) return;
+            var p = ini.value.split(':');
+            if (p.length < 2) return;
+            var sugerida = String(Number(p[0]) + 1).padStart(2, '0') + ':' + p[1] + ':00';
+            if (Array.prototype.some.call(fin.options, function (o) { return o.value === sugerida; })) {
+                fin.value = sugerida;
+            }
+        });
+    })();
+</script>
 </body>
 </html>

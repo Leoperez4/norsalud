@@ -30,10 +30,10 @@
                 <a class="item-title" href="{% url 'panel:estudiante_tarea_detalle' tarea.pk %}">{{ tarea.titulo }}</a>
                 <span class="item-meta">
                     {{ tarea.asignatura.nombre }} ·
-                    {% if tarea.fecha_entrega < hoy %}
-                        <span class="badge badge-danger">Vencida el {{ tarea.fecha_entrega|date:"d/m/Y" }}</span>
+                    {% if tarea.vencida %}
+                        <span class="badge badge-danger">Vencida el {{ tarea.fecha_entrega|date:"d/m/Y h:i A" }}</span>
                     {% else %}
-                        Entrega antes del {{ tarea.fecha_entrega|date:"d/m/Y" }}
+                        Entrega antes del {{ tarea.fecha_entrega|date:"d/m/Y h:i A" }}
                     {% endif %}
                 </span>
             </li>

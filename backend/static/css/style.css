@@ -725,3 +725,34 @@ table.data-table {
         padding: 28px 18px;
     }
 }
+
+/* ---------- Ojo de contraseña ---------- */
+.password-wrap {
+    position: relative;
+    display: block;
+}
+
+.password-wrap input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 42px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 6px;
+    opacity: 0.55;
+}
+
+.password-toggle:hover,
+.password-toggle.activo {
+    opacity: 1;
+}

@@ -3,6 +3,24 @@ from django import forms
 from academico.models import Asignatura, Horario, Programa
 from accounts.models import Rol, Usuario
 
+from .widgets import SelectorHora
+
+
+class ConfirmarPasswordMixin:
+    """Agrega el campo 'Confirmar contraseña' y valida que coincida con la contraseña."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password"].widget.attrs["autocomplete"] = "new-password"
+        self.fields["password2"].widget.attrs["autocomplete"] = "new-password"
+
+    def clean(self):
+        cleaned = super().clean()
+        p1, p2 = cleaned.get("password"), cleaned.get("password2")
+        if p1 and p2 and p1 != p2:
+            self.add_error("password2", "Las contraseñas no coinciden.")
+        return cleaned
+
 
 class ProgramaForm(forms.ModelForm):
     class Meta:
@@ -31,8 +49,9 @@ class AsignaturaForm(forms.ModelForm):
         self.fields["docente"].required = False
 
 
-class DocenteCreateForm(forms.ModelForm):
+class DocenteCreateForm(ConfirmarPasswordMixin, forms.ModelForm):
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Confirmar contraseña", widget=forms.PasswordInput)
 
     class Meta:
         model = Usuario
@@ -63,8 +82,9 @@ class DocenteEditForm(forms.ModelForm):
         labels = DocenteCreateForm.Meta.labels
 
 
-class EstudianteCreateForm(forms.ModelForm):
+class EstudianteCreateForm(ConfirmarPasswordMixin, forms.ModelForm):
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Confirmar contraseña", widget=forms.PasswordInput)
 
     class Meta:
         model = Usuario
@@ -99,9 +119,15 @@ class HorarioForm(forms.ModelForm):
             "hora_fin": "Hora de finalización",
         }
         widgets = {
-            "hora_inicio": forms.TimeInput(attrs={"type": "time"}),
-            "hora_fin": forms.TimeInput(attrs={"type": "time"}),
+            "hora_inicio": SelectorHora(desde=6, hasta=21, attrs={"data-hora": "inicio"}),
+            "hora_fin": SelectorHora(desde=6, hasta=22, attrs={"data-hora": "fin"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields["hora_inicio"].widget.agregar_opcion_si_falta(self.instance.hora_inicio)
+            self.fields["hora_fin"].widget.agregar_opcion_si_falta(self.instance.hora_fin)
 
     def clean(self):
         cleaned = super().clean()

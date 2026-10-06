@@ -64,15 +64,46 @@ def docente_asignaturas(request):
 
 # ---------- Asistencia (RF-30) ----------
 
+_DIAS = ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"]  # indexado por date.weekday()
+
+
+def _ultimo_dia_de_clase(dias_clase, hoy):
+    """Hoy si hay clase; si no, el día de clase más reciente (None si no hay horario)."""
+    for atras in range(7):
+        dia = hoy - datetime.timedelta(days=atras)
+        if _DIAS[dia.weekday()] in dias_clase:
+            return dia
+    return None
+
 @login_required
 def docente_asistencia(request, pk):
     asignatura = _asignatura_del_docente(request, pk)
+    hoy = datetime.date.today()
+    dias_clase = set(asignatura.horarios.values_list("dia_semana", flat=True))
+
     fecha_str = request.GET.get("fecha") or request.POST.get("fecha")
-    fecha = datetime.date.fromisoformat(fecha_str) if fecha_str else datetime.date.today()
+    try:
+        fecha = datetime.date.fromisoformat(fecha_str) if fecha_str else _ultimo_dia_de_clase(dias_clase, hoy)
+    except ValueError:
+        fecha = _ultimo_dia_de_clase(dias_clase, hoy)
+
+    motivo_bloqueo = None
+    if not dias_clase:
+        motivo_bloqueo = "Esta asignatura no tiene horario asignado, así que no se puede llamar a lista."
+    elif fecha is None or _DIAS[fecha.weekday()] not in dias_clase:
+        dias_txt = ", ".join(
+            etiqueta for codigo, etiqueta in Horario.Dia.choices if codigo in dias_clase
+        )
+        motivo_bloqueo = f"Esa fecha no es día de clase. Esta asignatura tiene clase los días: {dias_txt}."
+    elif fecha > hoy:
+        motivo_bloqueo = "No puedes llamar a lista en una fecha futura."
 
     inscripciones = Inscripcion.objects.filter(asignatura=asignatura).select_related("estudiante")
 
     if request.method == "POST":
+        if motivo_bloqueo:
+            messages.error(request, motivo_bloqueo)
+            return redirect("panel:docente_asistencia", pk=asignatura.pk)
         for inscripcion in inscripciones:
             estado = request.POST.get(f"estado_{inscripcion.pk}")
             if estado in (Asistencia.Estado.PRESENTE, Asistencia.Estado.AUSENTE):
@@ -90,6 +121,9 @@ def docente_asistencia(request, pk):
         "section": "asignaturas",
         "asignatura": asignatura,
         "fecha": fecha,
+        "hoy": hoy,
+        "dias_clase": sorted(_DIAS.index(d) for d in dias_clase),
+        "motivo_bloqueo": motivo_bloqueo,
         "inscripciones": inscripciones,
         "registros": registros,
     })
@@ -100,13 +134,12 @@ def docente_asistencia(request, pk):
 @login_required
 def docente_tareas(request, pk):
     asignatura = _asignatura_del_docente(request, pk)
-    hoy = datetime.date.today()
     tareas = []
     for tarea in asignatura.entregables.order_by("numero"):
         entregas = tarea.entregas.all()
         tareas.append({
             "tarea": tarea,
-            "vencida": tarea.fecha_entrega < hoy,
+            "vencida": tarea.vencida,
             "entregadas": entregas.count(),
             "por_calificar": entregas.filter(calificacion__isnull=True).count(),
         })
@@ -125,6 +158,11 @@ class TareaCreateView(DocenteRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.asignatura = _asignatura_del_docente(request, kwargs["asignatura_pk"])
         return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asignatura"] = self.asignatura
+        return kwargs
 
     def form_valid(self, form):
         form.instance.asignatura = self.asignatura

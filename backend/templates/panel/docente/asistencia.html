@@ -11,13 +11,38 @@
     <form method="get" style="display:flex; gap:10px; align-items:end;">
         <div class="form-field">
             <label for="fecha">Fecha de la clase</label>
-            <input type="date" id="fecha" name="fecha" value="{{ fecha|date:'Y-m-d' }}" onchange="this.form.submit()">
+            <input type="date" id="fecha" name="fecha" value="{{ fecha|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}"
+                   data-dias="{{ dias_clase|join:',' }}">
         </div>
     </form>
 </div>
+<script>
+    (function () {
+        var input = document.getElementById("fecha");
+        var dias = input.dataset.dias ? input.dataset.dias.split(",").map(Number) : [];
+        input.addEventListener("change", function () {
+            if (!input.value) return;
+            var p = input.value.split("-").map(Number);
+            var dia = (new Date(p[0], p[1] - 1, p[2]).getDay() + 6) % 7; // 0 = lunes
+            if (dias.indexOf(dia) === -1) {
+                input.setCustomValidity("Ese día no hay clase.");
+                input.reportValidity();
+                input.setCustomValidity("");
+                return;
+            }
+            input.form.submit();
+        });
+    })();
+</script>
+
+{% if motivo_bloqueo %}
+    <div class="alert alert-error">{{ motivo_bloqueo }}</div>
+{% endif %}
 
 <div class="card">
-    {% if inscripciones %}
+    {% if motivo_bloqueo %}
+        <div class="empty-state">Elige una fecha en la que haya clase para llamar a lista.</div>
+    {% elif inscripciones %}
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="fecha" value="{{ fecha|date:'Y-m-d' }}">

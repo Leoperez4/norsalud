@@ -53,7 +53,6 @@ def estudiante_home(request):
         "notas_recientes": notas_recientes,
         "anuncios_recientes": anuncios_recientes,
         "clases_hoy": clases_hoy,
-        "hoy": datetime.date.today(),
     })
 
 
@@ -87,7 +86,6 @@ def estudiante_asignaturas(request):
 @login_required
 def estudiante_tareas(request, pk):
     asignatura = _asignatura_del_estudiante(request, pk)
-    hoy = datetime.date.today()
     entregas = {
         e.entregable_id: e for e in EntregaEstudiante.objects.filter(
             estudiante=request.user, entregable__asignatura=asignatura
@@ -100,7 +98,7 @@ def estudiante_tareas(request, pk):
             estado = "calificada"
         elif entrega:
             estado = "entregada"
-        elif tarea.fecha_entrega < hoy:
+        elif tarea.vencida:
             estado = "vencida"
         else:
             estado = "pendiente"
@@ -121,8 +119,14 @@ def estudiante_tarea_detalle(request, pk):
 
     entrega = EntregaEstudiante.objects.filter(entregable=tarea, estudiante=request.user).first()
     ya_calificada = entrega and entrega.calificacion is not None
+    vencida = tarea.vencida
+    puede_subir = not ya_calificada and not vencida
 
-    if request.method == "POST" and not ya_calificada:
+    if request.method == "POST" and vencida:
+        messages.error(request, "La fecha y hora de cierre de esta tarea ya pasó; no se puede enviar.")
+        return redirect("panel:estudiante_tarea_detalle", pk=tarea.pk)
+
+    if request.method == "POST" and puede_subir:
         form = SubirTareaForm(request.POST, request.FILES, instance=entrega)
         if form.is_valid():
             entrega = form.save(commit=False)
@@ -132,13 +136,14 @@ def estudiante_tarea_detalle(request, pk):
             messages.success(request, "Tarea enviada correctamente.")
             return redirect("panel:estudiante_tareas", pk=tarea.asignatura.pk)
     else:
-        form = None if ya_calificada else SubirTareaForm(instance=entrega)
+        form = SubirTareaForm(instance=entrega) if puede_subir else None
 
     return render(request, "panel/estudiante/tarea_detalle.html", {
         "section": "asignaturas",
         "tarea": tarea,
         "entrega": entrega,
         "form": form,
+        "vencida": vencida,
     })
 
 

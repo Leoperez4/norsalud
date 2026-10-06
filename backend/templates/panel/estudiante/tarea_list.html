@@ -23,7 +23,7 @@
             <tr>
                 <td>{{ item.tarea.numero }}</td>
                 <td>{{ item.tarea.titulo }}</td>
-                <td>{{ item.tarea.fecha_entrega }}</td>
+                <td>{{ item.tarea.fecha_entrega|date:"d/m/Y h:i A" }}</td>
                 <td>
                     {% if item.estado == "calificada" %}
                         <span class="badge badge-success">Calificada · {{ item.entrega.calificacion }}</span>
@@ -37,7 +37,7 @@
                 </td>
                 <td>
                     <a class="btn btn-secondary btn-sm" href="{% url 'panel:estudiante_tarea_detalle' item.tarea.pk %}">
-                        {% if item.entrega %}Ver{% else %}Subir tarea{% endif %}
+                        {% if item.entrega or item.estado == "vencida" %}Ver{% else %}Subir tarea{% endif %}
                     </a>
                 </td>
             </tr>
