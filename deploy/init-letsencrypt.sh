@@ -24,44 +24,61 @@ fi
 
 COMPOSE="docker compose -f docker-compose.prod.yml"
 
-echo "### Descargando configuración TLS recomendada de Let's Encrypt ..."
+echo "### Generando configuración TLS recomendada ..."
+# Se genera localmente (en vez de descargarla de GitHub) para no depender de
+# una ruta externa que puede cambiar o desaparecer sin aviso.
 mkdir -p ./deploy/certbot-conf
-if [ ! -e ./deploy/certbot-conf/options-ssl-nginx.conf ]; then
-    curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > ./deploy/certbot-conf/options-ssl-nginx.conf
+if [ ! -s ./deploy/certbot-conf/options-ssl-nginx.conf ]; then
+    cat > ./deploy/certbot-conf/options-ssl-nginx.conf <<'TLSCONF'
+ssl_session_cache shared:le_nginx_SSL:10m;
+ssl_session_timeout 1440m;
+ssl_session_tickets off;
+
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+
+ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+TLSCONF
 fi
-if [ ! -e ./deploy/certbot-conf/ssl-dhparam.pem ]; then
-    curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/ssl-dhparam.pem > ./deploy/certbot-conf/ssl-dhparam.pem
+if [ ! -s ./deploy/certbot-conf/ssl-dhparam.pem ]; then
+    openssl dhparam -out ./deploy/certbot-conf/ssl-dhparam.pem 2048
 fi
 
 echo "### Creando certificado autofirmado temporal para poder levantar nginx ..."
 CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
-$COMPOSE run --rm --entrypoint "\
-  mkdir -p $CERT_PATH && \
+$COMPOSE run --rm --entrypoint sh certbot -c "
+  mkdir -p $CERT_PATH &&
   openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
     -keyout '$CERT_PATH/privkey.pem' \
     -out '$CERT_PATH/fullchain.pem' \
-    -subj '/CN=localhost'" certbot
+    -subj '/CN=localhost'"
 
 echo "### Copiando la configuración TLS al volumen compartido con nginx ..."
-$COMPOSE run --rm --entrypoint "\
-  cp /tmp/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf && \
-  cp /tmp/ssl-dhparam.pem /etc/letsencrypt/ssl-dhparam.pem" \
-  -v "$(pwd)/deploy/certbot-conf:/tmp:ro" certbot
+$COMPOSE run --rm --entrypoint sh \
+  -v "$(pwd)/deploy/certbot-conf:/tmp:ro" certbot -c "
+  cp /tmp/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf &&
+  cp /tmp/ssl-dhparam.pem /etc/letsencrypt/ssl-dhparam.pem"
 
 echo "### Levantando nginx con el certificado temporal ..."
 $COMPOSE up -d nginx
+sleep 3
+if ! $COMPOSE ps nginx | grep -q "Up"; then
+    echo "nginx no arrancó, revisa los logs: docker compose -f docker-compose.prod.yml logs nginx" >&2
+    exit 1
+fi
 
 echo "### Eliminando el certificado temporal ..."
-$COMPOSE run --rm --entrypoint "rm -rf /etc/letsencrypt/live/$DOMAIN /etc/letsencrypt/archive/$DOMAIN /etc/letsencrypt/renewal/$DOMAIN.conf" certbot
+$COMPOSE run --rm --entrypoint sh certbot -c "rm -rf /etc/letsencrypt/live/$DOMAIN /etc/letsencrypt/archive/$DOMAIN /etc/letsencrypt/renewal/$DOMAIN.conf"
 
 echo "### Solicitando el certificado real a Let's Encrypt ..."
-$COMPOSE run --rm --entrypoint "\
-  certbot certonly --webroot -w /var/www/certbot \
-    -d $DOMAIN \
-    --email $CERTBOT_EMAIL \
+# El servicio "certbot" del compose tiene su propio entrypoint (el bucle de
+# renovación); hay que pisarlo explícitamente para correr un comando suelto.
+$COMPOSE run --rm --entrypoint certbot certbot certonly --webroot -w /var/www/certbot \
+    -d "$DOMAIN" \
+    --email "$CERTBOT_EMAIL" \
     --rsa-key-size 2048 \
     --agree-tos \
-    --no-eff-email" certbot
+    --no-eff-email
 
 echo "### Recargando nginx con el certificado definitivo ..."
 $COMPOSE exec nginx nginx -s reload
