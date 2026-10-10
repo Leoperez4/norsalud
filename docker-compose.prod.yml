@@ -8,6 +8,7 @@ services:
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    command: --innodb-buffer-pool-size=512M
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -15,6 +16,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    cpus: "1.0"
+    mem_limit: 1.5g
 
   web:
     build: ./backend
@@ -26,6 +29,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    cpus: "1.0"
+    mem_limit: 1g
 
   nginx:
     image: nginx:1.27-alpine
@@ -43,6 +48,8 @@ services:
       - "443:443"
     depends_on:
       - web
+    cpus: "0.5"
+    mem_limit: 256m
 
   certbot:
     image: certbot/certbot
@@ -56,6 +63,8 @@ services:
         certbot renew --webroot -w /var/www/certbot --quiet;
         sleep 12h & wait $${!};
       done;"
+    cpus: "0.25"
+    mem_limit: 128m
 
 volumes:
   db_data:

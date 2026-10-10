@@ -1,13 +1,40 @@
 # Despliegue en el VPS (producción)
 
-Esta guía asume un VPS Ubuntu/Debian limpio, con un dominio ya comprado, y
-que vas a correr todo (app + base de datos) con Docker.
+Esta guía asume un VPS Ubuntu/Debian limpio y que vas a correr todo (app +
+base de datos) con Docker.
 
 ## 0. Antes de empezar
 
-- Apunta el DNS de tu dominio (registro **A**) a la IP pública del VPS.
-  Espera a que propague (`ping tudominio.com` debe responder con la IP del VPS).
-- Necesitas: acceso SSH al VPS, y el dominio ya apuntando.
+- Necesitas: acceso SSH al VPS, y un nombre de dominio apuntando a su IP
+  pública (ver por qué abajo).
+
+### ¿No tienen un dominio comprado?
+
+Let's Encrypt (el servicio que emite el certificado HTTPS gratis) **no
+emite certificados para una IP pelada** — necesita un nombre de dominio.
+Sin esto, el sitio quedaría en HTTP sin candado, con el navegador
+advirtiendo "No seguro" antes de dejar entrar al login.
+
+Si no van a comprar un dominio propio, usen uno gratuito de
+**[nip.io](https://nip.io)** o **[sslip.io](https://sslip.io)**: resuelven
+automáticamente a la IP que lleven en el nombre, sin configurar nada. Por
+ejemplo, si la IP del VPS es `203.0.113.5`, el "dominio" a usar en todo
+este documento (`DOMAIN=` en el `.env`, `ALLOWED_HOSTS`,
+`CSRF_TRUSTED_ORIGINS`) es:
+
+```
+203.0.113.5.nip.io
+```
+
+Como sigue siendo un dominio real (con DNS real), Let's Encrypt emite el
+certificado normalmente — los usuarios entran a
+`https://203.0.113.5.nip.io` con candado verde, sin que hayan comprado
+nada. El resto de esta guía es exactamente igual, solo cambia qué valor le
+dan a `DOMAIN`.
+
+- Si sí compraron un dominio propio: apunten su DNS (registro **A**) a la
+  IP pública del VPS y esperen a que propague (`ping tudominio.com` debe
+  responder con la IP del VPS) antes del paso 6.
 
 ## 1. Instalar Docker en el VPS
 
@@ -47,7 +74,8 @@ cp .env.example .env
 nano .env
 ```
 
-Ajusta como mínimo:
+Ajusta como mínimo (`tudominio.com` es tu dominio real, o tu
+`<IP>.nip.io` si no compraron uno — ver sección 0):
 
 ```
 DEBUG=0
