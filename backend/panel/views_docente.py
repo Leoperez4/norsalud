@@ -122,7 +122,6 @@ def docente_asistencia(request, pk):
         "asignatura": asignatura,
         "fecha": fecha,
         "hoy": hoy,
-        "dias_clase": sorted(_DIAS.index(d) for d in dias_clase),
         "motivo_bloqueo": motivo_bloqueo,
         "inscripciones": inscripciones,
         "registros": registros,
