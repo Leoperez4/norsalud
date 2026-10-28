@@ -19,13 +19,19 @@
         {% for falla in fallas %}
             <tr>
                 <td>{{ falla.fecha }}</td>
-                <td><span class="badge" style="background:#fbe9ea; color:#c23a46;">Ausente</span></td>
+                <td>
+                    {% if falla.estado == "RETARDO" %}
+                        <span class="badge" style="background:#fff4e0; color:#b26a00;">Retardo</span>
+                    {% else %}
+                        <span class="badge" style="background:#fbe9ea; color:#c23a46;">Ausente</span>
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     {% else %}
-        <div class="empty-state">No tienes fallas registradas en esta asignatura. 🎉</div>
+        <div class="empty-state">No tienes fallas ni retardos registrados en esta asignatura. 🎉</div>
     {% endif %}
 </div>
 {% endblock %}

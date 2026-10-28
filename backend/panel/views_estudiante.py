@@ -194,7 +194,10 @@ def estudiante_calificaciones(request, pk):
 def estudiante_asistencias(request, pk):
     asignatura = _asignatura_del_estudiante(request, pk)
     inscripcion = Inscripcion.objects.get(asignatura=asignatura, estudiante=request.user)
-    fallas = Asistencia.objects.filter(inscripcion=inscripcion, estado=Asistencia.Estado.AUSENTE).order_by("-fecha")
+    fallas = Asistencia.objects.filter(
+        inscripcion=inscripcion,
+        estado__in=[Asistencia.Estado.AUSENTE, Asistencia.Estado.RETARDO],
+    ).order_by("-fecha")
     return render(request, "panel/estudiante/asistencias.html", {
         "section": "asignaturas",
         "asignatura": asignatura,

@@ -106,7 +106,7 @@ def docente_asistencia(request, pk):
             return redirect("panel:docente_asistencia", pk=asignatura.pk)
         for inscripcion in inscripciones:
             estado = request.POST.get(f"estado_{inscripcion.pk}")
-            if estado in (Asistencia.Estado.PRESENTE, Asistencia.Estado.AUSENTE):
+            if estado in Asistencia.Estado.values:
                 Asistencia.objects.update_or_create(
                     inscripcion=inscripcion, fecha=fecha, defaults={"estado": estado}
                 )
@@ -315,7 +315,12 @@ def docente_calificaciones_pdf(request, pk):
             celdas.append(nota)
         promedio = round(sum(valores) / len(valores), 2) if valores else 0
         estudiante = inscripcion.estudiante
-        filas.append([f"{estudiante.first_name} {estudiante.last_name}".strip() or estudiante.cedula, *celdas, promedio])
+        filas.append([
+            f"{estudiante.first_name} {estudiante.last_name}".strip() or estudiante.cedula,
+            estudiante.cedula,
+            *celdas,
+            promedio,
+        ])
 
     return _generar_pdf_calificaciones(asignatura, tareas, filas)
 
@@ -336,13 +341,16 @@ def _generar_pdf_calificaciones(asignatura, tareas, filas):
         leftMargin=1.5 * cm, rightMargin=1.5 * cm, topMargin=1.5 * cm, bottomMargin=1.5 * cm,
     )
     styles = getSampleStyleSheet()
+    docente = asignatura.docente
+    nombre_docente = f"{docente.first_name} {docente.last_name}".strip() or docente.cedula
     story = [
         Paragraph(f"Planilla de calificaciones — {asignatura.nombre} ({asignatura.curso})", styles["Title"]),
         Paragraph(f"Programa: {asignatura.programa} · Semestre: {asignatura.semestre}", styles["Normal"]),
+        Paragraph(f"Docente: {nombre_docente} · Cédula: {docente.cedula}", styles["Normal"]),
         Spacer(1, 0.6 * cm),
     ]
 
-    encabezado = ["Estudiante"] + [f"{t.numero}. {t.titulo}" for t in tareas] + ["Promedio"]
+    encabezado = ["Estudiante", "Cédula"] +[f"{t.numero}. {t.titulo}" for t in tareas] + ["Promedio"]
     data = [encabezado] + filas
 
     tabla = Table(data, repeatRows=1)
@@ -351,7 +359,7 @@ def _generar_pdf_calificaciones(asignatura, tareas, filas):
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("ALIGN", (1, 0), (-1, -1), "CENTER"),
+        ("ALIGN", (1, 0), (-1, -1), "CENTER"),  # nombre a la izquierda; cédula, notas y promedio centrados
         ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#c7ceea")),
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f6f7fc")]),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),

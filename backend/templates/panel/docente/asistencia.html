@@ -51,6 +51,7 @@
             <tr>
                 <th>Estudiante</th>
                 <th>Presente</th>
+                <th>Retardo</th>
                 <th>Ausente</th>
             </tr>
             </thead>
@@ -61,6 +62,10 @@
                     <td>
                         <input type="radio" name="estado_{{ inscripcion.pk }}" value="PRESENTE"
                                {% if registros|get_item:inscripcion.pk == "PRESENTE" %}checked{% endif %}>
+                    </td>
+                    <td>
+                        <input type="radio" name="estado_{{ inscripcion.pk }}" value="RETARDO"
+                               {% if registros|get_item:inscripcion.pk == "RETARDO" %}checked{% endif %}>
                     </td>
                     <td>
                         <input type="radio" name="estado_{{ inscripcion.pk }}" value="AUSENTE"

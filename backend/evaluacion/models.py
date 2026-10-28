@@ -61,6 +61,7 @@ class Asistencia(models.Model):
     class Estado(models.TextChoices):
         PRESENTE = "PRESENTE", "Presente"
         AUSENTE = "AUSENTE", "Ausente"
+        RETARDO = "RETARDO", "Retardo"
 
     inscripcion = models.ForeignKey(
         Inscripcion, on_delete=models.CASCADE, related_name="asistencias"
